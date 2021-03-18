@@ -52,7 +52,7 @@ def get_materials_map():
 
 def get_materials_renames():
     return {
-        'Color_C06':'teak-material',
+        'Color_C06': 'teak-material',
         'Helen_BraceletGlasses': 'wife-eye-material',  # erin eye
         'Mirror_01': 'mirror-material',
         'Roofing_Shingles_GAF_Estates': 'roof-shingles-material',
@@ -102,6 +102,7 @@ def clean_up():
     rename_materials()
     reassign_materials()
     clean_unused_and_edge_materials()
+    remove_duplicate_material_slots()
     list_material_names()
 
 
@@ -160,6 +161,23 @@ def remove_all_unused_material_slots():
          "selected_objects": scene.objects
          }
     )
+
+
+def remove_duplicate_material_slots():
+    log('remove duplicate material slots', 2)
+    for obj in bpy.context.scene.objects:
+        slots = obj.material_slots
+        seen = set()
+        marked = set()
+        for i, slot in enumerate(slots):
+            if slot.material.name in seen:
+                marked.add(i)
+            else:
+                seen.add(slot.material.name)
+
+        for n_removed, original_idx in enumerate(marked):
+            log(f'removing {slots[i].material} in slot {i-n_removed} ({i, n_removed})', 2)
+            bpy.ops.object.material_slot_remove({'object': obj, 'active_material_index': i-n_removed})
 
 
 def rename_materials():
