@@ -7,13 +7,13 @@ def get_materials_map():
     return {
         '__11_Colonial_White': 'white-porcelain-material',
         'Aquatica_Aquatica_True_Ofuro_Regular_True_Ofuro_Regular_Aquatic': 'tub-material',
-        'Color_C01': 'ceiling-material',
-        'Color_C02': 'ceiling-material',
-        'Color_C06': 'teak-material',
+        'Color_C01': 'material',
+        'Color_C02': 'material',
+        'Color_C06': 'Color_C06',
         'Color_F01': 'guest-bath-floor-material',
         'Color_G06': 'dormer-interior-material',
         'Color_K01': 'Roofing_Shingles_GAF_Estates',
-        'Color_M07': 'master-sink-material',
+        'Color_M07': 'white-porcelain-material',
         'dormer-interior-material': 'dormer-interior-material',
         'guest-bath-floor-material': 'guest-bath-floor-material',
         'guest-bath-half-wall-material': 'guest-bath-half-wall-material',
@@ -52,6 +52,7 @@ def get_materials_map():
 
 def get_materials_renames():
     return {
+        'Color_C06':'teak-material',
         'Helen_BraceletGlasses': 'wife-eye-material',  # erin eye
         'Mirror_01': 'mirror-material',
         'Roofing_Shingles_GAF_Estates': 'roof-shingles-material',
@@ -69,7 +70,7 @@ def get_renamed_materials_map():
 
 
 def log(msg='', indent=0):
-    print('' * 2 * indent, msg)
+    print(' ' * 2 * indent, msg)
 
 
 def remove_non_default_cameras():
@@ -97,19 +98,38 @@ def clean_up():
     log('\nclean up')
     remove_non_default_cameras()
     hide_roof_and_ceilings()
+    clean_unused_and_edge_materials()
+    rename_materials()
+    reassign_materials()
+    clean_unused_and_edge_materials()
+    list_material_names()
 
 
 def clean_unused_and_edge_materials():
     log('\nclean materials')
 
-    usages = defaultdict(int)
+    remove_unused_materials()
+    remove_all_unused_material_slots()
+
+    usages = count_material_usages()
+
+    materials = bpy.data.materials
+
+    for m in materials:
+        log(f'{m.name} - {usages[m.name]}', 1)
+        if m.name.startswith('edge_color'):
+            log('deleting (edge)', 2)
+            bpy.data.materials.remove(m)
 
     remove_all_unused_material_slots()
 
-    for obj in bpy.data.objects:
-        for slot in obj.material_slots:
-            if slot.material is not None:
-                usages[slot.material.name] += 1
+
+def remove_unused_materials():
+    log('\nremove unused materials')
+
+    remove_all_unused_material_slots()
+
+    usages = count_material_usages()
 
     materials = bpy.data.materials
 
@@ -118,11 +138,17 @@ def clean_unused_and_edge_materials():
         if usages[m.name] == 0:
             log('deleting (no usages)', 2)
             bpy.data.materials.remove(m)
-        if m.name.startswith('edge_color'):
-            log('deleting (edge)', 2)
-            bpy.data.materials.remove(m)
 
     remove_all_unused_material_slots()
+
+
+def count_material_usages():
+    usages = defaultdict(int)
+    for obj in bpy.data.objects:
+        for slot in obj.material_slots:
+            if slot.material is not None:
+                usages[slot.material.name] += 1
+    return usages
 
 
 def remove_all_unused_material_slots():
@@ -144,14 +170,17 @@ def rename_materials():
 
 
 def reassign_materials():
+    log(f'reassign materials')
     mat_map = get_renamed_materials_map()
     for obj in bpy.data.objects:
         for slot_idx, slot in enumerate(obj.material_slots):
             if slot.material is not None:
-                new_mat_nm = mat_map.get(slot.material.name, slot.material)
+                new_mat_nm = mat_map.get(slot.material.name, slot.material.name)
                 if new_mat_nm != slot.material.name:
+                    log(f'reassigning {slot.material.name} to {new_mat_nm}', 1)
                     new_mat = bpy.data.materials[new_mat_nm]
-                    obj.material_slots[slot_idx] = new_mat
+                    obj.material_slots[slot_idx].material = new_mat
+    remove_unused_materials()
 
 
 def list_material_names():
@@ -163,9 +192,4 @@ def list_material_names():
 
 
 if __name__ == "__main__":
-    #    clean_up()
-    clean_unused_and_edge_materials()
-    list_material_names()
-
-    rename_materials()
-    list_material_names()
+    clean_up()
