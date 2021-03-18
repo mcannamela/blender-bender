@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "blender-bender"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.7, <3.8"
+"fake-bpy-module-2.91" = "^20210304"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "setuptools"]
+build-backend = "poetry.core.masonry.api"

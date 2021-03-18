@@ -1,0 +1,18 @@
+[[package]]
+name = "fake-bpy-module-2.91"
+version = "20210304"
+description = "Collection of the fake Blender Python API module for the code completion."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[metadata]
+lock-version = "1.1"
+python-versions = ">=3.7, <3.8"
+content-hash = "ff24bdfe7d7f213e6ede5abdaceb7f6edfa07f4b4bf72904e804de8ce7dd554f"
+
+[metadata.files]
+"fake-bpy-module-2.91" = [
+    {file = "fake-bpy-module-2.91-20210304.tar.gz", hash = "sha256:6b0f946179f6cb0193e70d6c122effaa285083e811a2e6fe88b82558a5986282"},
+    {file = "fake_bpy_module_2.91-20210304-py3-none-any.whl", hash = "sha256:1d6cb17e4f724c1299025c00c8d37c4f170841fdd6c61fdbb35d4bd414e571fd"},
+]
